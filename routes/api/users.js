@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
 const User = require('../../models/User');
 const keys = require('../../config/keys');
 
@@ -9,6 +10,15 @@ const router = express.Router();
 router.get('/test', (req, res) => res.json({
   msg: 'This is the users route',
 }));
+
+// GET current user
+router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
+  res.json({
+    id: req.user.id,
+    handle: req.user.handle,
+    email: req.user.email,
+  });
+});
 
 router.post('/register', (req, res) => {
   const errors = {};
