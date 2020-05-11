@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const User = require('../../models/User');
 const keys = require('../../config/keys');
+const validateRegisterInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
 
 const router = express.Router();
 
@@ -21,12 +23,11 @@ router.get('/current', passport.authenticate('jwt', { session: false }), (req, r
 });
 
 router.post('/register', (req, res) => {
-  const errors = {};
-  // const { errors, isValid } = validateRegisterInput(req.body);
+  const { errors, isValid } = validateRegisterInput(req.body);
 
-  // if (!isValid) {
-  //   return res.status(400).json(errors);
-  // }
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
 
   User.findOne({ email: req.body.email })
     .then((user) => {
@@ -63,16 +64,15 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-  // const { errors, isValid } = validateRegisterInput(req.body);
+  const { errors, isValid } = validateLoginInput(req.body);
 
-  // if (!isValid) {
-  //   return res.status(400).json(errors);
-  // }
-  const errors = {};
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
 
-  const { handle, password } = req.body;
+  const { email, password } = req.body;
 
-  User.findOne({ handle })
+  User.findOne({ email })
     .then((user) => {
       if (!user) {
         errors.handle = 'This user does not exist';
